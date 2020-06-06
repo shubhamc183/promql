@@ -13,13 +13,13 @@ Labels can be(examples)
 - `host: ticketing.qa.example.org`
 - `cloud-provider: aws`
 - `instance-type: t2.micro`
-- `instance-life: stop`
+- `instance-life: spot/ondemand/reserved`
 
-## Visualizing the data in Grafana
-Grafana has built-in support for Prometheus and the concept of the [variable]((https://grafana.com/docs/grafana/latest/variables/templates-and-variables/)) is the icing on the cake.
+## Visualizing the data over Grafana to allow dynamic filtering of data?
+
+Grafana has built-in support for Prometheus and the concept of the [variable]((https://grafana.com/docs/grafana/latest/variables/templates-and-variables/)) is the icing on the cake if used correctly.
+
 ![Grafana Drilldown Prometheus](https://github.com/shubhamc183/promql/blob/master/media/grfana_drill_down_prometheus.png?raw=true)
-
-## How to make a dynamic grafana dashboard to allow filtering of results?
 
 [Grafana provides a way to get all labels, metrics and query the Promtheus.](https://grafana.com/docs/grafana/latest/features/datasources/prometheus/#query-variable)
 | label_names()               | Returns a list of label names.                                        |
