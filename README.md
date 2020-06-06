@@ -16,14 +16,12 @@ Labels can be(examples)
 - `instance-life: stop`
 
 ## Visualizing the data in Grafana
-Grafana has built-in support for Prometheus and the concept of the variable is the icing on the cake.
-![Grfana Drilldown Prometheus](https://github.com/shubhamc183/promql/blob/master/media/grfana_drill_down_prometheus.png?raw=true)
+Grafana has built-in support for Prometheus and the concept of the [variable]((https://grafana.com/docs/grafana/latest/variables/templates-and-variables/)) is the icing on the cake.
+![Grafana Drilldown Prometheus](https://github.com/shubhamc183/promql/blob/master/media/grfana_drill_down_prometheus.png?raw=true)
 
-### How to make a dynamic grafana dashboard to allow filtering of results?
-We have to use [Grafana variables](https://grafana.com/docs/grafana/latest/variables/templates-and-variables/)
+## How to make a dynamic grafana dashboard to allow filtering of results?
 
-[Query Variable](https://grafana.com/docs/grafana/latest/features/datasources/prometheus/#query-variable)
-Name	Description
+[Grafana provides a way to get all labels, metrics and query the Promtheus.](https://grafana.com/docs/grafana/latest/features/datasources/prometheus/#query-variable)
 | label_names()               | Returns a list of label names.                                        |
 |-----------------------------|-----------------------------------------------------------------------|
 | label_values(label)         | Returns a list of label values for the label in every metric.         |
@@ -31,17 +29,17 @@ Name	Description
 | metrics(metric)             | Returns a list of metrics matching the specified metric regex.        |
 | query_result(query)         | Returns a list of Prometheus query result for the query.              |
 
-1. First of all make the datasource as a variable so that it your dashboard is not limited to any specific Prometheus
+1. First of all, make the data source as a variable so that it your dashboard is not limited to any specific Prometheus
    1. Let us name it "datasource"
-   2. Now, all your query will use it.
+   2. Now, all your queries will use it.
+
 ![Grafana datasource variable](https://github.com/shubhamc183/promql/blob/master/media/datasource.png?raw=true)
 
 2. Now all your variables will depend upon it.
 
 3. If you are using Prometheus in federation mode then you may need to further select any specific Prometheus or all of them.
-![Grfana prometheus federation variable](https://github.com/shubhamc183/promql/blob/master/media/prometheus_ferderation_var.png?raw=true)
 
-**IMPORTANT**
+![Grafana prometheus federation variable](https://github.com/shubhamc183/promql/blob/master/media/prometheus_ferderation_var.png?raw=true)
 
 If you see here I have used
 - variable type = Query
@@ -52,6 +50,8 @@ If you see here I have used
 4. Now let us make a variable called "region" and it value will depend on what "prometheus" we have selected from the above "prometheus".
    1. `label_values(node_uname_info{prometheus=~"$prometheus"}, region)`
    2. Here, we are filtering on the basic of prometheus(which is the name of label which represent a fedeated promtheus in this use case)
+
+![Grafana prometheus region variable](https://github.com/shubhamc183/promql/blob/master/media/region_var.png?raw=true)
 
 5. Make a variable called "team" and its value will depend upong the "prometheus" and "region" you have selected above.
    1. `label_values(node_uname_info{prometheus=~"$prometheus", region=~"$region"},  team)`
