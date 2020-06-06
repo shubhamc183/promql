@@ -1,9 +1,10 @@
 # promql
-This repository is a way to learn and store top promql queries.
+This repository is a way to learn, store, and share top promql queries.
 
+promql: [Prometheus](https://prometheus.io/) provides a functional query language called PromQL
 
 ## **Why labels are so important in Prometheus?**
-Labels will provide a way to do a granular search after the data is collected and also write a configurable Alertmanager configuration. Before collecting data it's very important to define and use a set of labels that will have a definite meaning.
+Labels will provide a way to do a granular search after the data is collected and also write a very configurable Alertmanager configuration. Before collecting data it's very important to define and use a set of labels that will have a definite meaning.
 
 Labels can be(examples)
 - `region: us-east-1`
@@ -18,6 +19,52 @@ Labels can be(examples)
 Grafana has built-in support for Prometheus and the concept of the variable is the icing on the cake.
 ![Grfana Drilldown Prometheus](https://github.com/shubhamc183/promql/blob/master/media/grfana_drill_down_prometheus.png?raw=true)
 
+### How to make a dynamic grafana dashboard to allow filtering of results?
+We have to use [Grafana variables](https://grafana.com/docs/grafana/latest/variables/templates-and-variables/)
+
+[Query Variable](https://grafana.com/docs/grafana/latest/features/datasources/prometheus/#query-variable)
+Name	Description
+| label_names()               | Returns a list of label names.                                        |
+|-----------------------------|-----------------------------------------------------------------------|
+| label_values(label)         | Returns a list of label values for the label in every metric.         |
+| label_values(metric, label) | Returns a list of label values for the label in the specified metric. |
+| metrics(metric)             | Returns a list of metrics matching the specified metric regex.        |
+| query_result(query)         | Returns a list of Prometheus query result for the query.              |
+
+1. First of all make the datasource as a variable so that it your dashboard is not limited to any specific Prometheus
+   1. Let us name it "datasource"
+   2. Now, all your query will use it.
+![Grafana datasource variable](https://github.com/shubhamc183/promql/blob/master/media/datasource.png?raw=true)
+
+2. Now all your variables will depend upon it.
+
+3. If you are using Prometheus in federation mode then you may need to further select any specific Prometheus or all of them.
+![Grfana prometheus federation variable](https://github.com/shubhamc183/promql/blob/master/media/prometheus_ferderation_var.png?raw=true)
+
+**IMPORTANT**
+
+If you see here I have used
+- variable type = Query
+- Query = `label_values(prometheus)`, here it means I want all the label values names "prometheus"(bad choice for federation though) 
+- Multi-value= Enabled, because I want my users to select more than one value of the vars like "dev" + "qa" + "stg" + "prod"
+- Custom all value= .*, so that characters length is very less in query made by grafana on your behalf to grafana. To support these write all queries as `prometheus=~"$promtheus"` instead of `prometheus="$promtheus"`.
+
+4. Now let us make a variable called "region" and it value will depend on what "prometheus" we have selected from the above "prometheus".
+   1. `label_values(node_uname_info{prometheus=~"$prometheus"}, region)`
+   2. Here, we are filtering on the basic of prometheus(which is the name of label which represent a fedeated promtheus in this use case)
+
+5. Make a variable called "team" and its value will depend upong the "prometheus" and "region" you have selected above.
+   1. `label_values(node_uname_info{prometheus=~"$prometheus", region=~"$region"},  team)`
+   2. Here, we are filtering on the basic of prometheus(which is the name of label which represent a fedeated promtheus in this use case)
+
+6. Make a variable called "instance_type" and its value will depend upong the "prometheus", "region", and "team" you have selected above.
+   1. `label_values(node_uname_info{prometheus=~"$prometheus", region=~"$region", team=~"$team"},  instance_type)`
+
+7. Like these we can make as much variable we want to provide users a robust data search.
+
+8. At last we need to make use of these variables in our panel queries
+   1. `CPU Usage Percentage: 1 - avg(irate(node_cpu_seconds_total{prometheus=~"$prometheus", region=~"$region", team=~"$team",  instance_type=~"$instance_type", instance=~"$instance", mode="idle"}[5m])) by (instance)`
+
 ## rate vs irate
   - The rate takes the difference of the first and last two points within that range (allowing for counter resets) to calculate a per-second rate.
   - Whereas irate takes the difference of two consecutive values
@@ -28,7 +75,7 @@ Grafana has built-in support for Prometheus and the concept of the variable is t
 
 ## Queries
 
-## Node Exporter
+## [Node Exporter](https://github.com/prometheus/node_exporter)
 - CPU Usage in last 5 mins
   - `(1 - avg(rate(node_cpu_seconds_total{instance=~"$instance",mode="idle"}[5m])) by (instance)) * 100`
 - RAM Used
@@ -64,7 +111,7 @@ Grafana has built-in support for Prometheus and the concept of the variable is t
   - topk(5, ((1 - avg(avg_over_time(rate(node_cpu_seconds_total{mode="idle"}[5m])[1h:1m])) by (host)) * 100))
   - bottomk(5, ((1 - avg(avg_over_time(rate(node_cpu_seconds_total{mode="idle"}[5m])[1h:1m])) by (host)) * 100))
 
-## Black Box Exporter(tcp_probe)
+## [BlackBoxExporter](https://github.com/prometheus/blackbox_exporter)(tcp_probe)
 - Probe Success Count
   - `count(probe_success == 1)`
 - Probe Failure Count
@@ -77,7 +124,7 @@ Grafana has built-in support for Prometheus and the concept of the variable is t
 - Average DNS Lookup
   - `avg(probe_dns_lookup_time_seconds)`
 
-## Nice articles
+## Nice articles to read for further learning
 - https://www.robustperception.io/ is the best!
 - https://timber.io/blog/promql-for-humans/
 - https://medium.com/@valyala/promql-tutorial-for-beginners-9ab455142085
