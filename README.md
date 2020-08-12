@@ -124,6 +124,11 @@ If you see here I have used
 - Average DNS Lookup
   - `avg(probe_dns_lookup_time_seconds)`
 
+## systemd service monitoring
+- `count(node_systemd_unit_state{name=~".*", state="active"} == 0)`
+- Make sure to limit the number of systemd services exposed else it can expose a huge number of metrics and can eat lot of storage space.
+- `--collector.systemd.unit-whitelist=(mongod|elasticsearch|ambari-server|mysqld|filebeat|metricsbeat|Collap|grafana-server).service` in node-exporter service file.
+
 ## Nice articles to read for further learning
 - https://www.robustperception.io/ is the best!
 - https://timber.io/blog/promql-for-humans/
