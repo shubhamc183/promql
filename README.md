@@ -134,3 +134,4 @@ If you see here I have used
 - https://timber.io/blog/promql-for-humans/
 - https://medium.com/@valyala/promql-tutorial-for-beginners-9ab455142085
 - https://stackoverflow.com/questions/58747562/how-to-get-max-cpu-useage-of-a-pod-in-kubernetes-over-a-time-interval-say-30-da
+- **PUSH VS PULL**: https://www.robustperception.io/which-kind-of-push-events-or-metrics
